@@ -24,7 +24,7 @@ defmodule ClusterEC2.Strategy.Tags do
   | `:ec2_tagname` | yes | Name of the EC2 instance tag to look for. |
   | `:ec2_tagvalue` | no | Can be passed a static value (string), a 0-arity function, or a 1-arity function (which will be passed the value of `:ec2_tagname` at invocation). |
   | `:app_prefix` | no | Will be prepended to the node's private IP address to create the node name. |
-  | `:ip_type` | no | One of :private or :public, defaults to :private |
+  | `:ip_type` | no | One of :private, :private_name or :public, defaults to :private |
   | `:polling_interval` | no | Number of milliseconds to wait between polls to the EC2 api. Defaults to 5_000 |
   """
 
@@ -187,9 +187,13 @@ defmodule ClusterEC2.Strategy.Tags do
   defp ip_xpath(:private),
     do: ~x"//DescribeInstancesResponse/reservationSet/item/instancesSet/item/privateIpAddress/text()"ls
 
+  defp ip_xpath(:private_name) do
+    ~x"//DescribeInstancesResponse/reservationSet/item/instancesSet/item/publicIpAddress/text()"ls
+    |> Enum.map(&"ip-#{&1 |> String.replace(".", "-")}")
+    
   defp ip_xpath(:public),
     do: ~x"//DescribeInstancesResponse/reservationSet/item/instancesSet/item/publicIpAddress/text()"ls
-
+    
   defp fetch_tag_value(_k, v) when is_function(v, 0), do: v.()
   defp fetch_tag_value(k, v) when is_function(v, 1), do: v.(k)
   defp fetch_tag_value(_k, v), do: v
