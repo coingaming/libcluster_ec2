@@ -12,9 +12,9 @@ defmodule ClusterEC2.Strategy.Tags do
             strategy: #{__MODULE__},
             config: [
               ec2_tagname: "mytag",
-              ec2_tagvalue: "tagvalue"
-              app_prefix: "app"
-              ip_type: :private
+              ec2_tagvalue: "tagvalue",
+              app_prefix: "app",
+              ip_type: :private,
               polling_interval: 10_000]]]
 
   ## Configuration Options
